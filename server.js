@@ -87,7 +87,7 @@ io.on('connection', (socket) => {
 });
 
 // Start the server
-const port = 3000;
+const port = 5040;
 server.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running at https://api.render.com/deploy/srv-ctp38iogph6c73daaigg?key=l6IuEE0sCGc:${port}`);
 });
