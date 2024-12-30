@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const socketIo = require('socket.io');
 const http = require('http');
 const SimplePeer = require('simple-peer');
@@ -9,20 +8,19 @@ const app = express();
 // Create HTTP server and attach Socket.IO
 const server = http.createServer(app);
 
-// Configure CORS for Express (HTTP requests)
-app.use(cors({
-  origin: '*',  // Allow all origins or specify your frontend URL (e.g., 'https://your-frontend.com')
-  methods: ['GET', 'POST'],  // Allowed HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization']  // Allowed headers
-}));
+// Middleware to add CORS headers for all incoming HTTP requests
+app.use((req, res, next) => {
+  // Set the CORS headers manually
+  res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all origins, or specify a URL for more security
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST');  // Allow specific methods
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');  // Allow specific headers
 
-// Configure CORS for WebSocket (Socket.IO)
-const io = socketIo(server, {
-  cors: {
-    origin: '*',  // Allow all origins or specify your frontend URL
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+  // If it's a preflight request (OPTIONS), we need to handle it and return the CORS headers
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
+
+  next();
 });
 
 // Store peers by userId for simplicity
@@ -49,6 +47,14 @@ app.get('/launch-edge', (req, res) => {
 });
 
 // WebRTC signaling process
+const io = socketIo(server, {
+  cors: {
+    origin: '*',  // Allow all origins or specify your frontend URL
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }
+});
+
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
 
@@ -87,7 +93,7 @@ io.on('connection', (socket) => {
 });
 
 // Start the server
-const port = 5040;
+const port = 3000;
 server.listen(port, () => {
-  console.log(`Server running at https://api.render.com/deploy/srv-ctp38iogph6c73daaigg?key=l6IuEE0sCGc:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });
